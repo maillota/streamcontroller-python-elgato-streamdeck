@@ -85,15 +85,13 @@ class StreamDeck(ABC):
     DialCallback = Callable[[_Self, int, DialEventType, bool], None] | None
     TouchScreenCallback = Callable[[_Self, TouchscreenEventType, Any], None] | None
 
-    def __init__(self, device: Transport.Device, resume_from_suspend: bool = True):
+    def __init__(self, device: Transport.Device):
         self.device: Transport.Device = device
         self.last_key_states: list[bool] = [False] * (self.KEY_COUNT + self.TOUCH_KEY_COUNT)
         self.last_dial_states: list[bool] = [False] * self.DIAL_COUNT
         self.read_thread: threading.Thread | None = None
         self.run_read_thread: bool = False
         self.read_poll_hz: int = 20
-        self.resume_from_suspend: bool = resume_from_suspend
-        self.reconnect_after_suspend: bool = resume_from_suspend
 
         self.key_callback: StreamDeck.KeyCallback = None
         self.dial_callback: StreamDeck.DialCallback = None
@@ -290,7 +288,7 @@ class StreamDeck(ABC):
             self.read_thread.daemon = True
             self.read_thread.start()
 
-    def open(self) -> None:
+    def open(self, resume_from_suspend: bool = True) -> None:
         """
         Opens the device for input/output. This must be called prior to setting
         or retrieving any device state.
@@ -300,7 +298,7 @@ class StreamDeck(ABC):
         self.device.open()
 
         self._reset_key_stream()
-        if self.resume_from_suspend:
+        if resume_from_suspend:
             self._setup_reader(self._read_with_resume_from_suspend)
         else:
             self._setup_reader(self._read)
