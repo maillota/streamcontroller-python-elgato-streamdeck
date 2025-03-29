@@ -98,6 +98,7 @@ class StreamDeck(ABC):
         self.touchscreen_callback: StreamDeck.TouchScreenCallback = None
 
         self.update_lock: threading.RLock = threading.RLock()
+        self.reconnect_after_suspend: bool = True
 
     def __del__(self):
         """
@@ -296,6 +297,7 @@ class StreamDeck(ABC):
         .. seealso:: See :func:`~StreamDeck.close` for the corresponding close method.
         """
         self.device.open()
+        self.reconnect_after_suspend = resume_from_suspend
 
         self._reset_key_stream()
         if resume_from_suspend:
