@@ -14,6 +14,7 @@ from .Devices.StreamDeckXL import StreamDeckXL
 from .Devices.StreamDeckPedal import StreamDeckPedal
 from .Devices.StreamDeckPlus import StreamDeckPlus
 from .Devices.Mirabox293S import Mirabox293S
+from .Devices.AjazzAKP05 import AjazzAKP05
 from .Transport import Transport
 from .Transport.Dummy import Dummy
 from .Transport.LibUSBHIDAPI import LibUSBHIDAPI
@@ -47,6 +48,8 @@ class DeviceManager:
     USB_PID_STREAMDECK_PLUS = 0x0084
     USB_VID_MIRABOX = 0x5548
     USB_PID_MIRABOX_STREAMDOCK_293S = 0x6670
+    USB_VID_AJAZZ = 0x0300
+    USB_PID_AJAZZ_AKP05 = 0x3004
 
     @staticmethod
     def _get_transport(transport: str | None):
@@ -123,7 +126,9 @@ class DeviceManager:
             (USBVendorIDs.USB_VID_ELGATO, USBProductIDs.USB_PID_STREAMDECK_XL_V2, StreamDeckXL),
             (USBVendorIDs.USB_VID_ELGATO, USBProductIDs.USB_PID_STREAMDECK_XL_V2_MODULE, StreamDeckXL),
             (USBVendorIDs.USB_VID_ELGATO, USBProductIDs.USB_PID_STREAMDECK_PLUS, StreamDeckPlus),
-            (USBVendorIDs.USB_VID_MIRABOX, USBProductIDs.USB_PID_MIRABOX_STREAMDOCK_293S, Mirabox293S)
+            (USBVendorIDs.USB_VID_MIRABOX, USBProductIDs.USB_PID_MIRABOX_STREAMDOCK_293S, Mirabox293S),
+            (USBVendorIDs.USB_VID_AJAZZ, USBProductIDs.USB_PID_AJAZZ_AKP05, AjazzAKP05)
+
         ]
 
         streamdecks = list()
