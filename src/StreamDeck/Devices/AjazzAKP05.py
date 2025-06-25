@@ -4,6 +4,8 @@
 #   dean [at] fourwalledcubicle [dot] com
 #         www.fourwalledcubicle.com
 #
+#   Ajazz AKPO5 non-official support
+#   by Alain Maillot (github.com/maillota)
  
 from loguru import logger as log
 from .StreamDeck import StreamDeck, ControlType, DialEventType, TouchscreenEventType
@@ -355,7 +357,7 @@ class AjazzAKP05(StreamDeck):
         payload = self._make_payload_for_report_id(0x00, [0x43, 0x52, 0x54, 0x00, 0x00, 0x43, 0x4c, 0x45, 0x00, 0x00, 0x00, 0xff])
         self.device.write(payload)
 
-        # we track this because we don't get up/downs for buttons 
+        # we track this because we don't get up/downs for dial presses
         self._DIAL_TURN_STATES = [0,0,0,0]
         self._DIAL_PRESS_STATES = [0,0,0,0]
         self.key_layout
@@ -382,30 +384,24 @@ class AjazzAKP05(StreamDeck):
               0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 
               0x06, 0x07, 0x08, 0x09, 0x0a,
 
-            Touch bar:
+            Touch bar:  -- currently not implemented
                 states:
 
-            investigate
-              0x01, 0x02, 0x03, 0x04, 
-              
             Dials: 
                 each dial is represented by 3 keys - (left turn | press | right turn)
-              (0x70|0x36|0x71), (0x10), (0x11), (0x12)
-
-        //64 | 65 | 66 | 67 => read_button_press(input, state),  // touch screen - single press, no up down
-
-        55 | 53 | 51 | 56 => read_encoder_press(input, state), // dial presses - left to right
-        (160..=161) | (80..=81) |
-          (144..=145) | (112..=113) => read_encoder_value(input),
+                (0xa0 | 0x37 | 0xa1)
+                (0x50 | 0x35 | 0x51)
+                (0x90 | 0x33 | 0x91)
+                (0x70 | 0x36 | 0x71)
         """
 
         states = states[9:]
         extracted = states[0:1]
         test_key = int.from_bytes(extracted, 'big', signed=False)
-        log.info(f"key pressed was {test_key}")
-        
+        log.debug_log(f"key pressed was {test_key}")
+
         debug_log = [f"0x{byte:02x} " for byte in states[0:16]]
-        log.info(f"State was {debug_log}")
+        log.debug(f"State was {debug_log}")
             
         if test_key in [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a]: #self.KEY_NUM_TO_DEVICE_KEY_ID: # Button press
             index = test_key - 1
@@ -446,7 +442,7 @@ class AjazzAKP05(StreamDeck):
         elif test_key in [0xa0, 0x37, 0xa1,
                           0x50, 0x35, 0x51,
                           0x90, 0x33, 0x91,
-                          0x70, 0x36, 0x71]: #self.DIAL_DEVICE_KEY_ID: # dial press screen
+                          0x70, 0x36, 0x71]:
             index = self.DIAL_DEVICE_KEY_ID.index(test_key)
             if index == -1:
                 return None
@@ -528,15 +524,12 @@ class AjazzAKP05(StreamDeck):
         self.device.write(payload)
 
     def set_touchscreen_image(self, image, x_pos=0, y_pos=0, width=0, height=0):
-        # if min(max(key, 0), self.TOUCH_KEY_COUNT) != key:
-        #    raise IndexError("Invalid key index {}.".format(key))
-
+        pass
+    '''
         image = bytes(image or self.BLANK_KEY_IMAGE)
         image_payload_page_length = self._IMG_PACKET_LEN
 
-        # key = self._convert_key_num_to_device_key_id(key)
         key = 0x01
-
         image_size_uint16_be = int.to_bytes(len(image), 2, 'big', signed=False)
 
         # start batch # CRT\0\0BAT #0x00 0x00 <image size uint16_be> <key id>
@@ -560,6 +553,7 @@ class AjazzAKP05(StreamDeck):
         # stop batch # CRT\0\0STP
         payload = self._make_payload_for_report_id(0x00, [0x43, 0x52, 0x54, 0x00, 0x00, 0x53, 0x54, 0x50])
         self.device.write(payload)
+    '''
 
     def set_key_color(self, key, r, g, b):
         pass
